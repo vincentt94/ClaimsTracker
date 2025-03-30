@@ -1,10 +1,11 @@
-// src/pages/Register.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/button';
+import { useAuth } from '../utils/auth';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -24,11 +25,16 @@ const Register: React.FC = () => {
     setError(null);
 
     try {
+      // TODO: Replace with actual GraphQL mutation for registration
       console.log('Registering:', formData);
 
-      // Simulate success
-      localStorage.setItem('token', 'fake-jwt-token');
-      localStorage.setItem('role', 'user');
+      // Simulate successful registration
+      const fakeToken = 'your-jwt-token';
+
+      // Set role to 'user' by default
+      login(fakeToken, 'user');
+
+      // Redirect to dashboard
       navigate('/dashboard');
     } catch (err) {
       setError('Registration failed. Please try again.');
