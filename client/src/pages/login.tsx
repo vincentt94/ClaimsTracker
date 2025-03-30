@@ -1,10 +1,12 @@
-// src/pages/Login.tsx
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/button';
+import { useAuth } from '../utils/auth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -23,15 +25,22 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
+      // TODO: Replace this with a real login mutation call to your backend
       console.log('Logging in:', formData);
 
+      // Simulated role check
       const isAdmin = formData.email === 'admin@admin.com';
 
-      localStorage.setItem('token', 'fake-jwt-token');
-      localStorage.setItem('role', isAdmin ? 'admin' : 'user');
+      // Simulated successful login
+      const fakeToken = 'your-jwt-token';
+
+      // Save to auth context
+      login(fakeToken, isAdmin ? 'admin' : 'user');
+
+      // Redirect
       navigate(isAdmin ? '/admin' : '/dashboard');
     } catch (err) {
-      setError('Login failed. Check credentials.');
+      setError('Login failed. Please check your credentials.');
     }
   };
 

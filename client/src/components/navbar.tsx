@@ -6,6 +6,9 @@ import { Link } from 'react-router-dom';
 const Navbar: React.FC = () => {
   const isLoggedIn = !!localStorage.getItem('token'); // Simple token check for demo
   const isAdmin = localStorage.getItem('role') === 'admin';
+  
+
+  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
