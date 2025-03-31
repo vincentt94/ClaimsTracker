@@ -1,8 +1,9 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/button';
 import { useAuth } from '../utils/auth';
+import { useMutation } from '@apollo/client';
+import { LOGIN } from '../utils/mutations';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Login: React.FC = () => {
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [loginMutation] = useMutation(LOGIN);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,20 +27,12 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      // TODO: Replace this with a real login mutation call to your backend
-      console.log('Logging in:', formData);
+      const { data } = await loginMutation({ variables: formData });
+      const token = data.login.token;
+      const role = data.login.user.role;
 
-      // Simulated role check
-      const isAdmin = formData.email === 'admin@admin.com';
-
-      // Simulated successful login
-      const fakeToken = 'your-jwt-token';
-
-      // Save to auth context
-      login(fakeToken, isAdmin ? 'admin' : 'user');
-
-      // Redirect
-      navigate(isAdmin ? '/admin' : '/dashboard');
+      login(token, role);
+      navigate(role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       setError('Login failed. Please check your credentials.');
     }
