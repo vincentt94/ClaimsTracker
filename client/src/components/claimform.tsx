@@ -1,10 +1,11 @@
-
 import React, { useState } from 'react';
 import Button from './button';
+import { useMutation } from '@apollo/client';
+import { CREATE_CLAIM } from '../utils/mutations';
+import { useNavigate } from 'react-router-dom';
 
-
-// generic claim for for the user to input their information
 const ClaimForm: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     dateOfBirth: '',
@@ -13,8 +14,10 @@ const ClaimForm: React.FC = () => {
     description: '',
   });
 
-  const [errors, setErrors] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const [createClaim] = useMutation(CREATE_CLAIM);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -23,22 +26,13 @@ const ClaimForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors(null);
-    setSuccess(null);
+    setError(null);
+    setSuccessMessage(null);
 
-    // Simple client-side validation
-    const { fullName, dateOfBirth, dateOfService, claimType, description } = formData;
-    if (!fullName || !dateOfBirth || !dateOfService || !claimType || !description) {
-      setErrors('Please fill out all fields.');
-      return;
-    }
-
-    // In the real app, you'll call a GraphQL mutation here.
     try {
-      // Simulate submission delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const { data } = await createClaim({ variables: formData });
 
-      setSuccess('Claim submitted successfully!');
+      setSuccessMessage(`Claim #${data.createClaim.claimNumber} submitted successfully!`);
       setFormData({
         fullName: '',
         dateOfBirth: '',
@@ -46,62 +40,59 @@ const ClaimForm: React.FC = () => {
         claimType: '',
         description: '',
       });
+
+      // Redirect to dashboard after short delay
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
-      setErrors('Something went wrong. Please try again.');
+      setError('Failed to submit claim. Please try again.');
     }
   };
 
   return (
     <div>
-      <h2 >Submit a New Claim</h2>
+      <h2>Submit a New Claim</h2>
 
-      {errors && <p >{errors}</p>}
-      {success && <p >{success}</p>}
+      {error && <p>{error}</p>}
+      {successMessage && <p>{successMessage}</p>}
 
-      <form onSubmit={handleSubmit} >
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           name="fullName"
           placeholder="Full Name"
           value={formData.fullName}
           onChange={handleChange}
-          
         />
-
+        <br />
         <input
           type="date"
           name="dateOfBirth"
           value={formData.dateOfBirth}
           onChange={handleChange}
         />
-
+        <br />
         <input
           type="date"
           name="dateOfService"
           value={formData.dateOfService}
           onChange={handleChange}
         />
-
-        <select
-          name="claimType"
-          value={formData.claimType}
-          onChange={handleChange}
-        >
+        <br />
+        <select name="claimType" value={formData.claimType} onChange={handleChange}>
           <option value="">Select Claim Type</option>
           <option value="medical">Medical</option>
           <option value="dental">Dental</option>
           <option value="vision">Vision</option>
           <option value="other">Other</option>
         </select>
-
+        <br />
         <textarea
           name="description"
           placeholder="Claim Description"
           value={formData.description}
           onChange={handleChange}
-          rows={4}
         />
-
+        <br />
         <Button text="Submit Claim" type="submit" />
       </form>
     </div>

@@ -1,5 +1,3 @@
-
-
 const typeDefs = `
   type User {
     _id: ID!
@@ -42,5 +40,4 @@ type Mutation {
   ): Claim
 }
 `;
-
 export default typeDefs;
