@@ -42,6 +42,7 @@ type Mutation {
     claimType: String!
     description: String!
   ): Claim
+   updateClaimStatus(claimId: ID!, status: String!): Claim
 }
 `;
 
