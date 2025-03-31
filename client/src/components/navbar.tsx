@@ -1,14 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-
-//navbar for the user to navigate 
+// Navbar for the user to navigate
 const Navbar: React.FC = () => {
-  const isLoggedIn = !!localStorage.getItem('token'); // Simple token check for demo
+  const token = localStorage.getItem('token');
+  const isLoggedIn = !!token;
   const isAdmin = localStorage.getItem('role') === 'admin';
-  
-
-  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -18,19 +15,20 @@ const Navbar: React.FC = () => {
 
   return (
     <nav>
-      <Link to="/" >ClaimsTracker</Link>
+      <Link to="/">ClaimsTracker</Link>
+
       <div>
-        {isLoggedIn && (
+        {isLoggedIn ? (
           <>
             <Link to="/dashboard">Dashboard</Link>
-            {isAdmin && <Link to="/admin" >Admin Panel</Link>}
-            <button onClick={handleLogout} >Logout</button>
+            <Link to="/submit-claim">Submit Claim</Link>
+            {isAdmin && <Link to="/admin">Admin Panel</Link>}
+            <button onClick={handleLogout}>Logout</button>
           </>
-        )}
-        {!isLoggedIn && (
+        ) : (
           <>
-            <Link to="/login" >Login</Link>
-            <Link to="/register" >Register</Link>
+            <Link to="/login">Login</Link>
+            <Link to="/register">Register</Link>
           </>
         )}
       </div>

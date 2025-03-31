@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import Button from '../components/button';
 import { useMutation } from '@apollo/client';
 import { LOGIN } from '../utils/mutations';
-import AuthService from '../utils/auth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
+  //  Redirect if already logged in
+  if (localStorage.getItem('token')) {
+    return <Navigate to="/dashboard" />;
+  }
+
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +22,7 @@ const Login: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,13 +31,18 @@ const Login: React.FC = () => {
 
     try {
       const { data } = await loginMutation({ variables: formData });
+
       const token = data.login.token;
       const role = data.login.user.role;
 
-      AuthService.login(token); // Store token and redirect
-      // If you want a conditional redirect based on role:
+      //  Store token and role
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+
+      //  Redirect based on role
       navigate(role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
+      console.error('Login error:', err);
       setError('Login failed. Please check your credentials.');
     }
   };
