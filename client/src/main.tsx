@@ -11,15 +11,15 @@ import Register from './pages/register';
 import Dashboard from './pages/dashboard';
 import AdminDashboard from './components/admindashboard';
 import ClaimForm from './components/claimform';
-import ErrorPage from './pages/errorpage'; 
-import { AuthProvider, useAuth } from './utils/auth';
+import ErrorPage from './pages/errorpage';
+import Home from './pages/home';
 
 // ------------------------
 // Apollo Client Setup
 // ------------------------
 
 const httpLink = createHttpLink({
-  uri: '/graphql', // or full URL like http://localhost:3001/graphql
+  uri: 'http://localhost:3001/graphql'
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -62,6 +62,7 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
+      { index: true, element: <Home /> },
       { path: 'login', element: <Login /> },
       { path: 'register', element: <Register /> },
       {
@@ -99,9 +100,7 @@ if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <ApolloProvider client={client}>
-        <AuthProvider>
           <RouterProvider router={router} />
-        </AuthProvider>
       </ApolloProvider>
     </React.StrictMode>
   );
