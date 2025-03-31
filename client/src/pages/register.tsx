@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/button';
 import { useAuth } from '../utils/auth';
+import { useMutation } from '@apollo/client';
+import { REGISTER } from '../utils/mutations';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ const Register: React.FC = () => {
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [registerMutation] = useMutation(REGISTER);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,16 +28,11 @@ const Register: React.FC = () => {
     setError(null);
 
     try {
-      // TODO: Replace with actual GraphQL mutation for registration
-      console.log('Registering:', formData);
+      const { data } = await registerMutation({ variables: formData });
+      const token = data.register.token;
+      const role = data.register.user.role;
 
-      // Simulate successful registration
-      const fakeToken = 'your-jwt-token';
-
-      // Set role to 'user' by default
-      login(fakeToken, 'user');
-
-      // Redirect to dashboard
+      login(token, role);
       navigate('/dashboard');
     } catch (err) {
       setError('Registration failed. Please try again.');
