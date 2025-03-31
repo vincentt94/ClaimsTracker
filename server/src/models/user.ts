@@ -1,7 +1,8 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { IUserDocument } from '../types/user.js';
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema<IUserDocument>({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -18,9 +19,9 @@ userSchema.pre('save', async function (next) {
 });
 
 // Password comparison method
-userSchema.methods.isCorrectPassword = function (password: string) {
+userSchema.methods.isCorrectPassword = function (password: string): Promise<boolean> {
   return bcrypt.compare(password, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model<IUserDocument>('User', userSchema);
 export default User;
