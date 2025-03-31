@@ -1,12 +1,24 @@
 import { IResolvers } from '@graphql-tools/utils';
 import User from '../models/user';
+import Claim from '../models/claim';
 import { signToken } from '../utils/auth';
 import bcrypt from 'bcryptjs';
 
+//generates random 5 digit number for claim
+const generateClaimNumber = () => {
+  return Math.floor(10000 + Math.random() * 90000).toString(); // 5-digit number
+};
+
 const resolvers: IResolvers = {
   Query: {
+
     me: async (_parent, _args, context) => {
       return context.user || null;
+    },
+    
+    getClaimsByUser: async (_parent, _args, context) => {
+      if (!context.user) throw new Error('Not authenticated');
+      return await Claim.find({ userId: context.user._id });
     },
   },
 
@@ -35,6 +47,17 @@ const resolvers: IResolvers = {
 
       const token = signToken(user);
       return { token, user };
+    },
+     // creates claims
+    createClaim: async (_parent, args, context) => {
+      if (!context.user) throw new Error('Not authenticated');
+      const claimNumber = generateClaimNumber();
+      const newClaim = await Claim.create({
+        userId: context.user._id,
+        claimNumber,
+        ...args,
+      });
+      return newClaim;
     },
   },
 };

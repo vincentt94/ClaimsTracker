@@ -1,36 +1,20 @@
 import React from 'react';
-import { useCurrentUser } from '../utils/usecurrentuser';
+import { useQuery } from '@apollo/client';
+import { GET_ME, GET_MY_CLAIMS } from '../utils/queries';
 import UserClaimsList from '../components/userclaimslist';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
-  const { user, loading, error } = useCurrentUser();
+  const navigate = useNavigate();
 
-  if (loading) return <p>Loading user info...</p>;
-  if (error || !user) return <p>Error loading user data.</p>;
+  const { data: userData, loading: userLoading, error: userError } = useQuery(GET_ME);
+  const { data: claimsData, loading: claimsLoading, error: claimsError } = useQuery(GET_MY_CLAIMS);
 
-  // For now, use mock claims until real query is added
-  const mockClaims = [
-    {
-      _id: '1',
-      fullName: user.username,
-      dateOfBirth: '1990-01-01',
-      dateOfService: '2025-03-01',
-      claimType: 'medical',
-      description: 'Routine check-up',
-      status: 'pending',
-      claimNumber: '12345'
-    },
-    {
-      _id: '2',
-      fullName: user.username,
-      dateOfBirth: '1990-01-01',
-      dateOfService: '2025-02-15',
-      claimType: 'dental',
-      description: 'Teeth cleaning',
-      status: 'approved',
-      claimNumber: '67890'
-    }
-  ];
+  if (userLoading || claimsLoading) return <p>Loading...</p>;
+  if (userError || claimsError) return <p>Error loading dashboard.</p>;
+
+  const user = userData?.me;
+  const claims = claimsData?.getClaimsByUser || [];
 
   return (
     <div>
@@ -38,10 +22,16 @@ const Dashboard: React.FC = () => {
       <p>Email: {user.email}</p>
       <p>Role: {user.role}</p>
 
+      <button onClick={() => navigate('/submit-claim')}>Submit New Claim</button>
+
       <hr />
 
       <h3>Your Claims:</h3>
-      <UserClaimsList claims={mockClaims} />
+      {claims.length === 0 ? (
+        <p>You have no claims yet.</p>
+      ) : (
+        <UserClaimsList claims={claims} />
+      )}
     </div>
   );
 };

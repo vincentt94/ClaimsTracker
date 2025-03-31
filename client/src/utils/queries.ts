@@ -10,3 +10,18 @@ export const GET_ME = gql`
     }
   }
 `;
+
+export const GET_MY_CLAIMS = gql`
+  query GetClaimsByUser {
+    getClaimsByUser {
+      _id
+      fullName
+      dateOfBirth
+      dateOfService
+      claimType
+      description
+      status
+      claimNumber
+    }
+  }
+`;

@@ -27,3 +27,26 @@ export const REGISTER = gql`
     }
   }
 `;
+
+export const CREATE_CLAIM = gql`
+  mutation CreateClaim(
+    $fullName: String!
+    $dateOfBirth: String!
+    $dateOfService: String!
+    $claimType: String!
+    $description: String!
+  ) {
+    createClaim(
+      fullName: $fullName
+      dateOfBirth: $dateOfBirth
+      dateOfService: $dateOfService
+      claimType: $claimType
+      description: $description
+    ) {
+      _id
+      claimNumber
+      status
+    }
+  }
+`;
+
