@@ -20,6 +20,17 @@ const resolvers: IResolvers = {
       if (!context.user) throw new Error('Not authenticated');
       return await Claim.find({ userId: context.user._id });
     },
+
+    //query for admin
+    getAllUsers: async (_, __, context) => {
+      if (!context.user || context.user.role !== 'admin') throw new Error('Unauthorized');
+      return await User.find({ role: 'user' });
+    },
+    //get all claims for specific user
+    getClaimsByUserId: async (_, { userId }, context) => {
+      if (!context.user || context.user.role !== 'admin') throw new Error('Unauthorized');
+      return await Claim.find({ userId });
+    },
   },
 
   Mutation: {
