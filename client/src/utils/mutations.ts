@@ -50,3 +50,11 @@ export const CREATE_CLAIM = gql`
   }
 `;
 
+export const UPDATE_CLAIM_STATUS = gql`
+  mutation UpdateClaimStatus($claimId: ID!, $status: String!) {
+    updateClaimStatus(claimId: $claimId, status: $status) {
+      _id
+      status
+    }
+  }
+`;

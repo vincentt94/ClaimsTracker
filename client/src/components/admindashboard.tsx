@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
-import { useQuery, useLazyQuery } from '@apollo/client';
+import { useQuery, useLazyQuery, useMutation } from '@apollo/client';
 import { GET_ALL_USERS, GET_CLAIMS_BY_USER_ID } from '../utils/queries';
+import { UPDATE_CLAIM_STATUS } from '../utils/mutations';
 import AdminClaimCard from './adminclaimcard';
 
 const AdminDashboard: React.FC = () => {
@@ -8,10 +10,21 @@ const AdminDashboard: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const [getUserClaims, { data: claimsData, loading: claimsLoading }] = useLazyQuery(GET_CLAIMS_BY_USER_ID);
+  const [updateClaimStatus] = useMutation(UPDATE_CLAIM_STATUS);
 
   const handleUserSelect = (userId: string) => {
     setSelectedUserId(userId);
     getUserClaims({ variables: { userId } });
+  };
+
+  const handleApprove = async (claimId: string) => {
+    await updateClaimStatus({ variables: { claimId, status: 'approved' } });
+    if (selectedUserId) getUserClaims({ variables: { userId: selectedUserId } });
+  };
+
+  const handleDeny = async (claimId: string) => {
+    await updateClaimStatus({ variables: { claimId, status: 'denied' } });
+    if (selectedUserId) getUserClaims({ variables: { userId: selectedUserId } });
   };
 
   return (
@@ -45,12 +58,19 @@ const AdminDashboard: React.FC = () => {
           ) : claimsData?.getClaimsByUserId.length === 0 ? (
             <p>No claims submitted.</p>
           ) : (
-            claimsData?.getClaimsByUserId.map((claim: any) => (
+            claimsData.getClaimsByUserId.map((claim: any) => (
               <AdminClaimCard
                 key={claim._id}
-                {...claim}
-                onApprove={() => {}}
-                onDeny={() => {}}
+                _id={claim._id}
+                fullName={claim.fullName}
+                dateOfBirth={claim.dateOfBirth}
+                dateOfService={claim.dateOfService}
+                claimType={claim.claimType}
+                description={claim.description}
+                status={claim.status}
+                claimNumber={claim.claimNumber}
+                onApprove={handleApprove}
+                onDeny={handleDeny}
               />
             ))
           )}
