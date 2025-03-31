@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/button';
-import { useAuth } from '../utils/auth';
 import { useMutation } from '@apollo/client';
 import { LOGIN } from '../utils/mutations';
+import AuthService from '../utils/auth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -31,7 +30,8 @@ const Login: React.FC = () => {
       const token = data.login.token;
       const role = data.login.user.role;
 
-      login(token, role);
+      AuthService.login(token); // Store token and redirect
+      // If you want a conditional redirect based on role:
       navigate(role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       setError('Login failed. Please check your credentials.');

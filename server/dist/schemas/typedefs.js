@@ -25,7 +25,9 @@ const typeDefs = `
 
 type Query {
   me: User
-  getClaimsByUser: [Claim] 
+  getClaimsByUser: [Claim]
+  getAllUsers: [User]
+  getClaimsByUserId(userId: ID!): [Claim]
 }
 
 type Mutation {
@@ -38,6 +40,7 @@ type Mutation {
     claimType: String!
     description: String!
   ): Claim
+   updateClaimStatus(claimId: ID!, status: String!): Claim
 }
 `;
 export default typeDefs;

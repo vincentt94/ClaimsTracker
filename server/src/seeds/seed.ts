@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import User from '../models/user.js';
 import Claim from '../models/claim.js';
 import db from '../config/connection.js';
+import { IUser } from '../types/user.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +31,8 @@ const seed = async () => {
   await User.deleteMany({});
   await Claim.deleteMany({});
 
-  const users = await User.insertMany([
+  // Users to be seeded
+  const seedUsers: IUser[] = [
     {
       username: 'john_doe',
       email: 'john@example.com',
@@ -49,9 +51,26 @@ const seed = async () => {
       password: 'password123',
       role: 'user',
     },
-  ]);
+    {
+      username: 'admin_user',
+      email: 'admin@example.com',
+      password: 'adminpass',
+      role: 'admin',
+    },
+  ];
 
-  const [john, jane, smith] = users;
+  // Save users and trigger password hashing
+  const users: HydratedDocument<IUser>[] = [];
+
+  for (const u of seedUsers) {
+    const user = new User(u);
+    await user.save(); // triggers pre-save hook
+    users.push(user);
+  }
+
+  const john = users[0];
+  const jane = users[1];
+  const smith = users[2];
 
   const claims = [
     ...Array(3).fill(null).map(() => generateClaim(john._id)),

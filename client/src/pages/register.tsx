@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 import Button from '../components/button';
-import { useAuth } from '../utils/auth';
 import { useMutation } from '@apollo/client';
 import { REGISTER } from '../utils/mutations';
+import AuthService from '../utils/auth';
 
 const Register: React.FC = () => {
-  const navigate = useNavigate();
-  const { login } = useAuth();
+ // const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -30,10 +29,8 @@ const Register: React.FC = () => {
     try {
       const { data } = await registerMutation({ variables: formData });
       const token = data.register.token;
-      const role = data.register.user.role;
 
-      login(token, role);
-      navigate('/dashboard');
+      AuthService.login(token); // Logs in and redirects to home
     } catch (err) {
       setError('Registration failed. Please try again.');
     }

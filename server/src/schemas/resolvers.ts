@@ -1,7 +1,7 @@
 import { IResolvers } from '@graphql-tools/utils';
-import User from '../models/user';
-import Claim from '../models/claim';
-import { signToken } from '../utils/auth';
+import User from '../models/user.js';
+import Claim from '../models/claim.js';
+import { signToken } from '../utils/auth.js';
 import bcrypt from 'bcryptjs';
 
 //generates random 5 digit number for claim

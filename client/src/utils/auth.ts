@@ -1,54 +1,60 @@
+import { jwtDecode, type JwtPayload } from 'jwt-decode';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-type Role = 'user' | 'admin' | null;
-
-interface AuthContextType {
-  token: string | null;
-  role: Role;
-  login: (token: string, role: Role) => void;
-  logout: () => void;
+// Extend the decoded payload
+interface ExtendedJwt extends JwtPayload {
+  data: {
+    _id: string;
+    email: string;
+    username: string;
+    role: 'user' | 'admin';
+  };
 }
 
-const AuthContext = createContext<AuthContextType>({
-  token: null,
-  role: null,
-  login: () => {},
-  logout: () => {},
-});
+class AuthService {
+  private tokenKey = 'id_token';
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [role, setRole] = useState<Role>(null);
+  getProfile(): ExtendedJwt['data'] | null {
+    const token = this.getToken();
+    if (!token) return null;
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedRole = localStorage.getItem('role') as Role;
-    if (storedToken) {
-      setToken(storedToken);
-      setRole(storedRole);
+    try {
+      const decoded = jwtDecode<ExtendedJwt>(token);
+      return decoded.data;
+    } catch {
+      return null;
     }
-  }, []);
+  }
 
-  const login = (newToken: string, newRole: Role) => {
-    setToken(newToken);
-    setRole(newRole);
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('role', newRole);
-  };
+  loggedIn(): boolean {
+    const token = this.getToken();
+    return !!token && !this.isTokenExpired(token);
+  }
 
-  const logout = () => {
-    setToken(null);
-    setRole(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-  };
+  isTokenExpired(token: string): boolean {
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      if (decoded?.exp && decoded.exp < Date.now() / 1000) {
+        return true;
+      }
+      return false;
+    } catch {
+      return true;
+    }
+  }
 
-  return (
-    <AuthContext.Provider value={{ token, role, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
 
-export const useAuth = () => useContext(AuthContext);
+  login(idToken: string): void {
+    localStorage.setItem(this.tokenKey, idToken);
+    window.location.assign('/');
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.tokenKey);
+    window.location.assign('/');
+  }
+}
+
+export default new AuthService();
