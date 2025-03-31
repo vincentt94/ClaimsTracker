@@ -1,74 +1,60 @@
-// src/components/admin/AdminDashboard.tsx
 import React, { useState } from 'react';
+import { useQuery, useLazyQuery } from '@apollo/client';
+import { GET_ALL_USERS, GET_CLAIMS_BY_USER_ID } from '../utils/queries';
 import AdminClaimCard from './adminclaimcard';
 
-type Claim = {
-  _id: string;
-  fullName: string;
-  dateOfBirth: string;
-  dateOfService: string;
-  claimType: string;
-  description: string;
-  status: 'pending' | 'approved' | 'denied';
-  claimNumber: string;
-};
-
 const AdminDashboard: React.FC = () => {
-  const [claims, setClaims] = useState<Claim[]>([
-    {
-      _id: '1',
-      fullName: 'John Smith',
-      dateOfBirth: '1985-06-15',
-      dateOfService: '2025-03-01',
-      claimType: 'medical',
-      description: 'Emergency room visit',
-      status: 'pending',
-      claimNumber: '12345'
-    },
-    {
-      _id: '2',
-      fullName: 'Emily Brown',
-      dateOfBirth: '1991-08-22',
-      dateOfService: '2025-02-15',
-      claimType: 'dental',
-      description: 'Tooth extraction and recovery',
-      status: 'approved',
-      claimNumber: '67890'
-    }
-  ]);
+  const { data: usersData, loading: usersLoading, error: usersError } = useQuery(GET_ALL_USERS);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const handleApprove = (id: string) => {
-    setClaims(prev =>
-      prev.map(claim =>
-        claim._id === id ? { ...claim, status: 'approved' } : claim
-      )
-    );
-    // Need to add GraphQL mutation here to update status in backend
-  };
+  const [getUserClaims, { data: claimsData, loading: claimsLoading }] = useLazyQuery(GET_CLAIMS_BY_USER_ID);
 
-  const handleDeny = (id: string) => {
-    setClaims(prev =>
-      prev.map(claim =>
-        claim._id === id ? { ...claim, status: 'denied' } : claim
-      )
-    );
-    //Need to add GraphQL mutation here to update status in backend
+  const handleUserSelect = (userId: string) => {
+    setSelectedUserId(userId);
+    getUserClaims({ variables: { userId } });
   };
 
   return (
-    <div >
-      <h2 >Admin Claim Management</h2>
-      {claims.length === 0 ? (
-        <p>No claims to display.</p>
+    <div>
+      <h2>Admin Dashboard</h2>
+
+      {usersLoading ? (
+        <p>Loading users...</p>
+      ) : usersError ? (
+        <p>Error loading users</p>
       ) : (
-        claims.map(claim => (
-          <AdminClaimCard
-            key={claim._id}
-            {...claim}
-            onApprove={handleApprove}
-            onDeny={handleDeny}
-          />
-        ))
+        <div>
+          <h3>Users</h3>
+          <ul>
+            {usersData.getAllUsers.map((user: any) => (
+              <li key={user._id}>
+                <button onClick={() => handleUserSelect(user._id)}>
+                  {user.username} ({user.email})
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {selectedUserId && (
+        <div style={{ marginTop: '2rem' }}>
+          <h3>Claims for Selected User</h3>
+          {claimsLoading ? (
+            <p>Loading claims...</p>
+          ) : claimsData?.getClaimsByUserId.length === 0 ? (
+            <p>No claims submitted.</p>
+          ) : (
+            claimsData?.getClaimsByUserId.map((claim: any) => (
+              <AdminClaimCard
+                key={claim._id}
+                {...claim}
+                onApprove={() => {}}
+                onDeny={() => {}}
+              />
+            ))
+          )}
+        </div>
       )}
     </div>
   );

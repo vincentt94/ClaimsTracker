@@ -27,7 +27,9 @@ const typeDefs = `
 
 type Query {
   me: User
-  getClaimsByUser: [Claim] 
+  getClaimsByUser: [Claim]
+  getAllUsers: [User]
+  getClaimsByUserId(userId: ID!): [Claim]
 }
 
 type Mutation {
