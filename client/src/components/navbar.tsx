@@ -1,16 +1,25 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-// Navbar for the user to navigate
 const Navbar: React.FC = () => {
-  const token = localStorage.getItem('token');
-  const isLoggedIn = !!token;
-  const isAdmin = localStorage.getItem('role') === 'admin';
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Dynamically check login + role
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    setIsLoggedIn(!!token);
+    setIsAdmin(role === 'admin');
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    window.location.href = '/login';
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    navigate('/login');
   };
 
   return (
@@ -20,9 +29,16 @@ const Navbar: React.FC = () => {
       <div>
         {isLoggedIn ? (
           <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/submit-claim">Submit Claim</Link>
-            {isAdmin && <Link to="/admin">Admin Panel</Link>}
+            {isAdmin ? (
+              <>
+                <Link to="/admin">Admin Panel</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/dashboard">Dashboard</Link>
+                <Link to="/submit-claim">Submit Claim</Link>
+              </>
+            )}
             <button onClick={handleLogout}>Logout</button>
           </>
         ) : (
