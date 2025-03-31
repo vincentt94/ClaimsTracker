@@ -9,14 +9,11 @@ const Login: React.FC = () => {
 
   //  Redirect if already logged in
   if (localStorage.getItem('token')) {
-    return <Navigate to="/dashboard" />;
+    const role = localStorage.getItem('role');
+    return <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} replace />;
   }
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const [loginMutation] = useMutation(LOGIN);
 
@@ -31,15 +28,12 @@ const Login: React.FC = () => {
 
     try {
       const { data } = await loginMutation({ variables: formData });
-
       const token = data.login.token;
       const role = data.login.user.role;
 
-      //  Store token and role
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
 
-      //  Redirect based on role
       navigate(role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       console.error('Login error:', err);
