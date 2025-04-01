@@ -56,6 +56,7 @@ const ClaimForm: React.FC = () => {
       {successMessage && <p>{successMessage}</p>}
 
       <form onSubmit={handleSubmit}>
+      <label htmlFor="fullName">Full Name</label>
         <input
           type="text"
           name="fullName"
@@ -64,6 +65,7 @@ const ClaimForm: React.FC = () => {
           onChange={handleChange}
         />
         <br />
+        <label htmlFor="dateOfBirth">Date of Birth</label>
         <input
           type="date"
           name="dateOfBirth"
@@ -71,6 +73,7 @@ const ClaimForm: React.FC = () => {
           onChange={handleChange}
         />
         <br />
+        <label htmlFor="dateOfService">Date of Service</label>
         <input
           type="date"
           name="dateOfService"
@@ -78,6 +81,7 @@ const ClaimForm: React.FC = () => {
           onChange={handleChange}
         />
         <br />
+        <label htmlFor="claimType">Claim Type</label>
         <select name="claimType" value={formData.claimType} onChange={handleChange}>
           <option value="">Select Claim Type</option>
           <option value="medical">Medical</option>
@@ -86,6 +90,7 @@ const ClaimForm: React.FC = () => {
           <option value="other">Other</option>
         </select>
         <br />
+        <label htmlFor="description">Description</label>
         <textarea
           name="description"
           placeholder="Claim Description"
