@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import Button from '../components/button';
 import { useMutation } from '@apollo/client';
 import { REGISTER } from '../utils/mutations';
+import Button from '../components/button';
+import { useAuth } from '../components/authcontext';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
 
-  //  Redirect if already logged in
-  if (localStorage.getItem('token')) {
-    const role = localStorage.getItem('role');
-    return <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} replace />;
-  }
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
 
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const [registerMutation] = useMutation(REGISTER);
+
+  //  Redirect if already logged in
+  if (auth?.isLoggedIn) {
+    return <Navigate to={auth.isAdmin ? '/admin' : '/dashboard'} replace />;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -31,9 +37,7 @@ const Register: React.FC = () => {
       const token = data.register.token;
       const role = data.register.user.role;
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
-
+      auth?.login(token, role); 
       navigate(role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
@@ -45,7 +49,6 @@ const Register: React.FC = () => {
     <div>
       <h2>Register</h2>
       {error && <p>{error}</p>}
-
       <form onSubmit={handleSubmit}>
         <input
           name="username"

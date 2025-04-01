@@ -1,9 +1,10 @@
-// src/main.tsx
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { AuthProvider } from './components/authcontext';
 
 import App from './app';
 import Login from './pages/login';
@@ -100,7 +101,9 @@ if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <ApolloProvider client={client}>
+      <AuthProvider>
           <RouterProvider router={router} />
+          </AuthProvider>
       </ApolloProvider>
     </React.StrictMode>
   );

@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/authcontext';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const auth = useAuth();
 
-  // Dynamically check login + role
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-    setIsLoggedIn(!!token);
-    setIsAdmin(role === 'admin');
-  }, []);
+  if (!auth) return null; // safeguard
+
+  const { isLoggedIn, isAdmin, logout } = auth;
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    setIsLoggedIn(false);
-    setIsAdmin(false);
+    logout();
     navigate('/login');
   };
 
@@ -30,9 +23,7 @@ const Navbar: React.FC = () => {
         {isLoggedIn ? (
           <>
             {isAdmin ? (
-              <>
-                <Link to="/admin">Admin Panel</Link>
-              </>
+              <Link to="/admin">Admin Panel</Link>
             ) : (
               <>
                 <Link to="/dashboard">Dashboard</Link>
