@@ -32,7 +32,7 @@ const Login: React.FC = () => {
       const token = data.login.token;
       const role = data.login.user.role;
 
-      auth?.login(token, role); // 
+      auth?.login(token, role);  
       navigate(role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       console.error('Login error:', err);
