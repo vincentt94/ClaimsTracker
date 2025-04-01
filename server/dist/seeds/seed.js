@@ -21,7 +21,6 @@ const descriptions = {
     vision: ['Eye exam', 'New prescription lenses', 'Vision therapy session'],
     other: ['Chiropractic adjustment', 'Massage therapy', 'Acupuncture treatment'],
 };
-// ✅ Updated: Accept static DOB as argument
 const generateClaim = (userId, username, dateOfBirth) => {
     const claimType = getRandom([...claimTypes]);
     const description = getRandom(descriptions[claimType]);
@@ -38,7 +37,7 @@ const generateClaim = (userId, username, dateOfBirth) => {
 };
 const seed = async () => {
     await db();
-    console.log('🌱 Seeding database...');
+    console.log(' Seeding database...');
     await User.deleteMany({});
     await Claim.deleteMany({});
     const seedUsers = [
