@@ -26,12 +26,21 @@ const Dashboard: React.FC = () => {
 
       <hr />
 
-      <h3>Your Claims:</h3>
-      {claims.length === 0 ? (
-        <p>You have no claims yet.</p>
-      ) : (
-        <UserClaimsList claims={claims} />
-      )}
+      <h3>Your Claims</h3>
+
+      {['pending', 'approved', 'denied'].map((status) => {
+        const filteredClaims = claims.filter((claim: any) => claim.status === status);
+        return (
+          <div key={status} style={{ marginBottom: '2rem' }}>
+            <h4>{status.toUpperCase()} Claims</h4>
+            {filteredClaims.length === 0 ? (
+              <p>No {status} claims.</p>
+            ) : (
+              <UserClaimsList claims={filteredClaims} />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };
