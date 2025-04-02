@@ -24,12 +24,11 @@ const randomDate = (start: Date, end: Date) =>
 const claimTypes = ['medical', 'dental', 'vision', 'other'] as const;
 const statusOptions = ['pending', 'approved', 'denied'] as const;
 const descriptions: Record<(typeof claimTypes)[number], string[]> = {
-  medical: ['Annual physical exam', 'Follow-up consultation', 'Urgent care visit'],
+  medical: ['Annual physical exam', 'Follow-up consultation', 'Urgent care visit', 'Back pain treatment'],
   dental: ['Routine cleaning', 'Cavity filling', 'Wisdom tooth extraction'],
-  vision: ['Eye exam', 'New prescription lenses', 'Vision therapy session'],
+  vision: ['Eye exam', 'New prescription lenses', 'Contact lens consultation'],
   other: ['Chiropractic adjustment', 'Massage therapy', 'Acupuncture treatment'],
 };
-
 
 const generateClaim = (
   userId: mongoose.Types.ObjectId,
@@ -42,7 +41,7 @@ const generateClaim = (
   return {
     userId,
     fullName: username,
-    dateOfBirth, //
+    dateOfBirth,
     dateOfService: randomDate(new Date(2023, 0, 1), new Date()),
     claimType,
     description,
@@ -62,23 +61,35 @@ const seed = async () => {
     {
       username: 'john_doe',
       email: 'john@example.com',
-      password: 'password123',
+      password: 'password',
       role: 'user',
     },
     {
       username: 'jane_doe',
       email: 'jane@example.com',
-      password: 'password123',
+      password: 'password',
       role: 'user',
     },
     {
-      username: 'john_smith',
-      email: 'smith@example.com',
-      password: 'password123',
+      username: 'michael_smith',
+      email: 'michael@example.com',
+      password: 'password',
       role: 'user',
     },
     {
-      username: 'admin_user',
+      username: 'sara_lee',
+      email: 'sara@example.com',
+      password: 'password',
+      role: 'user',
+    },
+    {
+      username: 'david_kim',
+      email: 'david@example.com',
+      password: 'password',
+      role: 'user',
+    },
+    {
+      username: 'admin',
       email: 'admin@example.com',
       password: 'adminpass',
       role: 'admin',
@@ -92,20 +103,23 @@ const seed = async () => {
     users.push(user);
   }
 
+  const userDOBs = {
+    john_doe: randomDate(new Date(1980, 0, 1), new Date(1990, 0, 1)),
+    jane_doe: randomDate(new Date(1985, 0, 1), new Date(1995, 0, 1)),
+    michael_smith: randomDate(new Date(1975, 0, 1), new Date(1985, 0, 1)),
+    sara_lee: randomDate(new Date(1990, 0, 1), new Date(1996, 0, 1)),
+    david_kim: randomDate(new Date(1982, 0, 1), new Date(1992, 0, 1)),
+  };
 
-  const john = users[0];
-  const jane = users[1];
-  const smith = users[2];
-
-  const johnDOB = randomDate(new Date(1980, 0, 1), new Date(1990, 0, 1));
-  const janeDOB = randomDate(new Date(1985, 0, 1), new Date(1995, 0, 1));
-  const smithDOB = randomDate(new Date(1975, 0, 1), new Date(1985, 0, 1));
-
-  const claims = [
-    ...Array(3).fill(null).map(() => generateClaim(john._id, john.username, johnDOB)),
-    ...Array(3).fill(null).map(() => generateClaim(jane._id, jane.username, janeDOB)),
-    ...Array(4).fill(null).map(() => generateClaim(smith._id, smith.username, smithDOB)),
-  ];
+  const claims = users
+    .filter((u) => u.role !== 'admin')
+    .flatMap((user) => {
+      const dob = userDOBs[user.username as keyof typeof userDOBs];
+      const count = Math.floor(Math.random() * 3) + 4; // 4 to 6 claims
+      return Array.from({ length: count }, () =>
+        generateClaim(user._id, user.username, dob)
+      );
+    });
 
   await Claim.insertMany(claims);
 

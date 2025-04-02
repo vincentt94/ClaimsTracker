@@ -52,7 +52,7 @@ const AdminDashboard: React.FC = () => {
 
       {selectedUserId && (
         <div style={{ marginTop: '2rem' }}>
-          <h3>Claims for Selected User</h3>
+          <h3>Claims</h3>
           {claimsLoading ? (
             <p>Loading claims...</p>
           ) : claimsData?.getClaimsByUserId.length === 0 ? (
