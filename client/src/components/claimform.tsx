@@ -16,8 +16,12 @@ const ClaimForm: React.FC = () => {
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const [createClaim] = useMutation(CREATE_CLAIM);
+  
+//allows users to see refetch queries of all new claims after new claim is created
+  const [createClaim] = useMutation(CREATE_CLAIM, {
+    refetchQueries: ['GetClaimsByUser'],
+    awaitRefetchQueries: true,
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
