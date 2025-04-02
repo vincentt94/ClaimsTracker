@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useLazyQuery, useMutation } from '@apollo/client';
 import { GET_ALL_USERS, GET_CLAIMS_BY_USER_ID } from '../utils/queries';
@@ -52,26 +51,33 @@ const AdminDashboard: React.FC = () => {
 
       {selectedUserId && (
         <div style={{ marginTop: '2rem' }}>
-          <h3>Claims</h3>
+          <h3>Claims for Selected User</h3>
           {claimsLoading ? (
             <p>Loading claims...</p>
-          ) : claimsData?.getClaimsByUserId.length === 0 ? (
+          ) : !claimsData?.getClaimsByUserId?.length ? (
             <p>No claims submitted.</p>
           ) : (
-            claimsData.getClaimsByUserId.map((claim: any) => (
-              <AdminClaimCard
-                key={claim._id}
-                _id={claim._id}
-                fullName={claim.fullName}
-                dateOfBirth={claim.dateOfBirth}
-                dateOfService={claim.dateOfService}
-                claimType={claim.claimType}
-                description={claim.description}
-                status={claim.status}
-                claimNumber={claim.claimNumber}
-                onApprove={handleApprove}
-                onDeny={handleDeny}
-              />
+            ['pending', 'approved', 'denied'].map((status) => (
+              <div key={status} style={{ marginBottom: '2rem' }}>
+                <h4>{status.toUpperCase()} Claims</h4>
+                {claimsData.getClaimsByUserId
+                  .filter((claim: any) => claim.status === status)
+                  .map((claim: any) => (
+                    <AdminClaimCard
+                      key={claim._id}
+                      _id={claim._id}
+                      fullName={claim.fullName}
+                      dateOfBirth={claim.dateOfBirth}
+                      dateOfService={claim.dateOfService}
+                      claimType={claim.claimType}
+                      description={claim.description}
+                      status={claim.status}
+                      claimNumber={claim.claimNumber}
+                      onApprove={handleApprove}
+                      onDeny={handleDeny}
+                    />
+                  ))}
+              </div>
             ))
           )}
         </div>
